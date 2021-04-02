@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.PeopleMapper">
+
+    <!--<cache eviction="LRU" flushInterval="" size="" readOnly=""/>-->
+
+    <resultMap id="queryPeopleMap" type="people">
+        <result property="id" column="id" />
+        <result property="name" column="name"/>
+        <result property="identifyId" column="identify_id"/>
+        <result property="weight" column="weight"/>
+    </resultMap>
+
+    <sql id="dbname">t_people</sql>
+
+    <select id="selectAll" resultType="people">
+        select * from <include refid="dbname" />
+    </select>
+    
+    <select id="queryPeople" parameterType="string" resultMap="queryPeopleMap">
+        <bind name="pattern" value="'%'+param+'%'" />
+        select * from <include refid="dbname"/>
+        where name like #{pattern}
+
+        <!-- foreach -->
+        <!--where name in
+        <foreach collection="array" item="li" index="index" open="(" separator="," close=")">
+            #{li}
+        </foreach>-->
+
+
+        <!-- set 用于update语句-->
+
+        <!-- trim -->
+        <!--<trim prefix="where" prefixOverrides="and">
+            <if test="idcardParam != null and idcardParam != ''">
+                and identify_id like concat('%',#{idcardParam},'%')
+            </if>
+        </trim>-->
+
+        <!-- where -->
+        <!--<where>
+            <if test="idcardParam != null and idcardParam != ''">
+                and identify_id like concat('%',#{idcardParam},'%')
+            </if>
+        </where>-->
+
+        <!-- choose(when,otherwise) -->
+        <!--where 1=1
+        <choose>
+            <when test="idcardParam != null and idcardParam != ''">
+                and identify_id like concat('%',#{idcardParam},'%')
+            </when>
+            <when test="nameParam != null and nameParam != ''">
+                and name = #{nameParam}
+            </when>
+            <otherwise>
+                and name is not null
+            </otherwise>
+        </choose>-->
+
+        <!-- if -->
+        <!--<if test="idcardParam != null and idcardParam != ''">
+            and identify_id like concat('%',#{idcardParam},'%')
+        </if>-->
+    </select>
+
+    <select id="countFirstName" parameterType="string" resultType="people" >
+        select * from <include refid="dbname"/> limit 1
+    </select>
+
+    <insert id="insertPeople" parameterType="people" keyProperty="id" useGeneratedKeys="true" >
+        <selectKey order="BEFORE" keyProperty="id" resultType="int">
+            select if(max(id) is null,1,max(id)+2) as newId from <include refid="dbname"/>
+        </selectKey>
+        insert into <include refid="dbname"/>(id,name,identify_id,weight)
+        values(#{id},#{name},#{identifyId},#{weight,javaType=double,jdbcType=NUMERIC,numericScale=3})
+
+    </insert>
+
+    <update id="updatePeople" parameterType="model.PeopleParam">
+        update <include refid="dbname"/>
+        <!--<set>
+            <if test="nameParam != null and nameParam != ''">
+                name=#{nameParam},
+            </if>
+            <if test="idcardParam != null and idcardParam != ''">
+                identify_id=#{idcardParam}
+            </if>
+        </set>-->
+
+        <trim prefix="set" suffixOverrides=",">
+            <if test="nameParam != null and nameParam != ''">
+                name=#{nameParam},
+            </if>
+            <if test="idcardParam != null and idcardParam != ''">
+                identify_id=#{idcardParam}
+            </if>
+        </trim>
+        where id=#{id}
+    </update>
+    
+    <delete id="deletePeople" parameterType="long">
+        delete from <include refid="dbname"/>
+        where id=#{id}
+    </delete>
+    
+
+
+
+
+</mapper>
