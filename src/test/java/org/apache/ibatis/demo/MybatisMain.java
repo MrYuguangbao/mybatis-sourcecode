@@ -28,8 +28,8 @@ public class MybatisMain {
         SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(is);
         SqlSession sqlSession = factory.openSession();
         //Blog blog = sqlSession.selectOne("org.mybatis.example.BlogMapper.selectBlog", 1);
-        BlogMapper mapper = sqlSession.getMapper(BlogMapper.class);
+        /*BlogMapper mapper = sqlSession.getMapper(BlogMapper.class);
         Blog blog = mapper.selectBlog(1);
-        System.out.println(blog);
+        System.out.println(blog);*/
     }
 }

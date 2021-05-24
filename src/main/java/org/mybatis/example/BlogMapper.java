@@ -2,6 +2,8 @@ package org.mybatis.example;
 
 import org.apache.ibatis.annotations.Select;
 
+import java.util.Map;
+
 /**
  * @Author: admin
  * @Description: mapper接口
@@ -10,6 +12,6 @@ import org.apache.ibatis.annotations.Select;
  * @CreateTime: 2021-04-02 20:10:04
  */
 public interface BlogMapper {
-    @Select("SELECT * FROM BLOG where id = #{id}")
-    Blog selectBlog(int id);
+    //@Select("SELECT * FROM BLOG where id = #{id}")
+    Blog selectBlog(Map<String, Object> map);
 }
