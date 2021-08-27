@@ -2,6 +2,7 @@ package org.mybatis.example;
 
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,4 +15,9 @@ import java.util.Map;
 public interface BlogMapper {
     //@Select("SELECT * FROM BLOG where id = #{id}")
     Blog selectBlog(Map<String, Object> map);
+    void updateBlog(Map<String, Object> map);
+    void insertBlog(Map<String, Object> map);
+    void deleteBlog(Map<String, Object> map);
+
+    List<Blog> selectAllBlog();
 }

@@ -1,5 +1,7 @@
 package org.mybatis.example;
 
+import java.io.Serializable;
+
 /**
  * @Author: admin
  * @Description: 自定義Blog裏
@@ -7,7 +9,7 @@ package org.mybatis.example;
  * @BelongsPackage: org.mybatis.example
  * @CreateTime: 2021-04-02 20:12:04
  */
-public class Blog {
+public class Blog implements Serializable {
 
   private int id;
   private String title;

@@ -7,12 +7,26 @@
         <setting name="logImpl" value="STDOUT_LOGGING"/>
         <!--<setting name="logImpl" value="LOG4J"/>-->
         <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <setting name="cacheEnabled" value="true"/>
     </settings>
 
     <typeAliases>
         <typeAlias type="org.mybatis.example.Blog" alias="blog" />
     </typeAliases>
 
+    <!--<plugins>-->
+      <!--<plugin interceptor="com.github.pagehelper.PageInterceptor">
+
+      </plugin>-->
+      <!--<plugin interceptor="org.mybatis.plugin.ArtistFirstPlugin">
+          <property name="plugin1" value="value1"/>
+          <property name="plugin2" value="value2"/>
+      </plugin>
+      <plugin interceptor="org.mybatis.plugin.ArtistSecondPlugin">
+        <property name="plugin1" value="value1"/>
+        <property name="plugin2" value="value2"/>
+      </plugin>-->
+    <!--</plugins>-->
     <environments default="development">
         <environment id="development">
             <transactionManager type="JDBC" />

@@ -2,7 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.mybatis.example.BlogMapper">
-    <select id="selectBlog" resultType="org.mybatis.example.Blog">
+    <cache />
+    <select id="selectBlog"  resultType="org.mybatis.example.Blog">
         select * from ${tName} where id = #{id}
     </select>
+
+    <select id="selectAllBlog" resultType="org.mybatis.example.Blog">
+        select * from blog
+    </select>
+
+    <update id="updateBlog">
+        update ${tName} set title = 'update_v1' where id = #{id}
+    </update>
+
+    <insert id="insertBlog">
+        insert into ${tName}(title, content) values('mybatis-spring', 'mybatis-spring整合原理')
+    </insert>
+
+    <delete id="deleteBlog">
+        delete from ${tName} where id = #{id}
+    </delete>
 </mapper>
