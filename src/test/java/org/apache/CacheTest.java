@@ -5,6 +5,8 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.velocity.runtime.parser.node.PublicFieldExecutor;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.mybatis.example.Blog;
 import org.mybatis.example.BlogMapper;
@@ -36,7 +38,9 @@ public class CacheTest {
       //PageHelper.startPage(1, 3);
       BlogMapper mapper = sqlSession.getMapper(BlogMapper.class);
       Blog blog = mapper.selectBlog(map);
-      System.out.println(blog);
+      blog.setTitle("设置Title");
+      Blog blog2 = mapper.selectBlog(map);
+      Assert.assertEquals(blog, blog2);
       /*List<Blog> blogs = mapper.selectAllBlog();
       for (Blog blog : blogs) {
         System.out.println(blog);
@@ -58,11 +62,14 @@ public class CacheTest {
     try{
       BlogMapper mapper1 = session1.getMapper(BlogMapper.class);
       BlogMapper mapper2 = session2.getMapper(BlogMapper.class);
+      System.out.println("mapper1执行");
       mapper1.selectBlog(map);
-      session1.close();
+      session1.commit();
+      System.out.println("mapper2执行");
       mapper2.selectBlog(map);
-      session2.close();
     } finally {
+      session1.close();
+      session2.close();
     }
   }
 

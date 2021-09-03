@@ -12,7 +12,13 @@
 
     <typeAliases>
         <typeAlias type="org.mybatis.example.Blog" alias="blog" />
+        <package name="com.example.mysql2es.mybatis.model"/>
     </typeAliases>
+
+    <typeHandlers>
+      <typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler"
+                   javaType="com.example.mysql2es.mybatis.model.Enabled" />
+    </typeHandlers>
 
     <!--<plugins>-->
       <!--<plugin interceptor="com.github.pagehelper.PageInterceptor">
@@ -41,7 +47,11 @@
 
     <mappers>
         <!--<mapper class="org.mybatis.example.BlogMapper" />-->
-      <mapper resource="mapper/BlogMapper.xml" />
+        <mapper resource="mapper/BlogMapper.xml" />
+        <mapper resource="mapper/UserMapper.xml" />
+        <mapper resource="mapper/RoleMapper.xml" />
+        <mapper resource="mapper/PrivilegeMapper.xml" />
+        <mapper resource="mapper/com/example/mysql2es/mybatis/xml/UsertestMapper.xml"/>
     </mappers>
 
 

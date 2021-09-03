@@ -1,0 +1,748 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0 //EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mysql2es.mybatis.mapper.UserMapper">
+
+    <cache-ref namespace="com.example.mysql2es.mybatis.mapper.RoleMapper" />
+
+    <resultMap id="userMap" type="com.example.mysql2es.mybatis.model.SysUser">
+        <id property="id" column="id" />
+        <result property="userName" column="user_name" />
+        <result property="userPassword" column="user_password" />
+        <result property="userEmail" column="user_email" />
+        <result property="userInfo" column="user_info" />
+        <result property="headImg" column="head_img" jdbcType="BLOB" />
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="userRoleMap" extends="userMap" type="com.example.mysql2es.mybatis.model.SysUser">
+        <result property="role.id" column="role_id" />
+        <result property="role.roleName" column="role_name" />
+        <result property="role.enabled" column="enabled" />
+        <result property="role.createBy" column="create_by" />
+        <result property="role.createTime" column="role_create_time" jdbcType="TIMESTAMP"/>
+        <result property="role.updateTime" column="role_update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 6.1.1.2 使用resultMap处理一对一映射：SQL查询语句的列名可以随便取，但是需要ResultMap和实际的字段映射-->
+    <select id="selectUserAndRoleByIdResultMap" resultMap="userRoleMap">
+        select
+         su.id,
+         su.user_name,
+         su.user_password,
+         su.user_email,
+         su.user_info,
+         su.head_img,
+         su.create_time,
+         su.update_time,
+         sr.id role_id,
+         sr.role_name,
+         sr.enabled enabled,
+         sr.create_by create_by,
+         sr.create_time role_create_time,
+         sr.update_time role_update_time
+        from sys_user su
+        inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+        where su.id = #{id}
+    </select>
+
+    <!-- 6.1.1.1 使用自动映射处理一对一映射:SQL语句中查询的列名必须命名为"对象.属性" -->
+    <select id="selectUserAndRoleById2" resultType="com.example.mysql2es.mybatis.model.SysUser">
+        select
+         su.id,
+         su.user_name,
+         su.user_password,
+         su.user_email,
+         su.user_info,
+         su.head_img,
+         su.create_time,
+         su.update_time,
+         sr.id "role.id",
+         sr.role_name "role.roleName",
+         sr.enabled "role.enabled",
+         sr.create_by "role.createBy",
+         sr.create_time "role.createTime",
+         sr.update_time "role.updateTime"
+        from sys_user su
+        inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+        where su.id = #{id}
+    </select>
+
+    <!-- 6.1.1.3-1 使用association配置一对一映射1：SQL查询语句返回的列名统一加上一个"role_"前缀 -->
+    <resultMap id="userRoleMapAssociation"
+               extends="userMap"
+               type="com.example.mysql2es.mybatis.model.SysUser">
+        <association property="role" columnPrefix="role_"
+                     javaType="com.example.mysql2es.mybatis.model.SysRole">
+            <result property="id" column="id" />
+            <result property="roleName" column="role_name" />
+            <result property="enabled" column="enabled" />
+            <result property="createBy" column="create_by" />
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        </association>
+    </resultMap>
+
+    <!--    使用association配置一对一映射1-->
+    <select id="selectUserAndRoleByIdAssociation" resultMap="userRoleMapAssociation">
+        select
+         su.id,
+         su.user_name,
+         su.user_password,
+         su.user_email,
+         su.user_info,
+         su.head_img,
+         su.create_time,
+         su.update_time,
+         sr.id role_id,
+         sr.role_name role_role_name,
+         sr.enabled role_enabled,
+         sr.create_by role_create_by,
+         sr.create_time role_create_time,
+         sr.update_time role_update_time
+        from sys_user su
+        inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+        where su.id = #{id}
+    </select>
+
+    <!-- 6.1.1.3-1 使用association改进版V1一对一映射1：SQL查询语句返回的列名统一加上一个"role_"前缀，assocaition的resultMap单独引用另外一个ResultMap，简化association-->
+    <resultMap id="roleMap" type="com.example.mysql2es.mybatis.model.SysRole"><!-- 此段可以移到RoleMapper.xml中（a) -->
+        <id property="id" column="id"/>
+        <result property="roleName" column="role_name" />
+        <result property="enabled" column="enabled" />
+        <result property="createBy" column="create_by" />
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP" />
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP" />
+    </resultMap>
+    <resultMap id="userRoleMapAssociation2"
+               extends="userMap"
+               type="com.example.mysql2es.mybatis.model.SysUser">
+        <association property="role" columnPrefix="role_" resultMap="roleMap"/>
+    </resultMap>
+
+    <!-- 使用association配置一对一映射1-->
+    <select id="selectUserAndRoleById3" resultMap="userRoleMapAssociation2">
+        select
+         su.id,
+         su.user_name,
+         su.user_password,
+         su.user_email,
+         su.user_info,
+         su.head_img,
+         su.create_time,
+         su.update_time,
+         sr.id role_id,
+         sr.role_name role_role_name,
+         sr.enabled role_enabled,
+         sr.create_by role_create_by,
+         sr.create_time role_create_time,
+         sr.update_time role_update_time
+        from sys_user su
+        inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+        where su.id = #{id}
+    </select>
+
+    <!-- 6.1.1.3-2 使用association配置一对一映射2：SQL查询语句返回的列名统一加上一个"role_"前缀，assocaition的resultMap单独引用另外一个ResultMap（配置到RoleMapper.xml），简化association-->
+    <resultMap id="userRoleMapAssociation4"
+               extends="userMap"
+               type="com.example.mysql2es.mybatis.model.SysUser">
+        <association property="role" columnPrefix="role_" resultMap="com.example.mysql2es.mybatis.mapper.RoleMapper.roleMap" /><!-- 此处可以引用RoleMapper.xml文件中的ResultMap -->
+    </resultMap>
+
+    <!-- 6.1.1.3-2 使用association配置一对一映射2-->
+    <select id="selectUserAndRoleById4" resultMap="userRoleMapAssociation4">
+        select
+         su.id,
+         su.user_name,
+         su.user_password,
+         su.user_email,
+         su.user_info,
+         su.head_img,
+         su.create_time,
+         su.update_time,
+         sr.id role_id,
+         sr.role_name role_role_name,
+         sr.enabled role_enabled,
+         sr.create_by role_create_by,
+         sr.create_time role_create_time,
+         sr.update_time role_update_time
+        from sys_user su
+        inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+        where su.id = #{id}
+    </select>
+
+    <!-- 6.1.1.4 association标签的嵌套查询（通过查多次SQL，最后组合成一个对象） -->
+    <resultMap id="userRoleMapSelect" extends="userMap"
+               type="com.example.mysql2es.mybatis.model.SysUser">
+        <!-- column中id=role_id，1.id与selectRoleById中SQL语句的参数id要保持一致 -->
+        <!-- 2.lazy的设置，可以让selectRoleById的查询SQL按需执行，默认由于aggressiveLazyLoading为true，所以嵌套查询会直接加载，需要在全局配置文件中设置为false，可以实现延迟加载 -->
+        <association property="role" column="{id=role_id}" fetchType="lazy"
+            select="com.example.mysql2es.mybatis.mapper.RoleMapper.selectRoleById"/>
+    </resultMap>
+
+    <select id="selectUserAndRoleByIdSelect" resultMap="userRoleMapSelect">
+        select
+         su.id,
+         su.user_name,
+         su.user_password,
+         su.user_email,
+         su.user_info,
+         su.head_img,
+         su.create_time,
+         su.update_time,
+         sur.role_id
+        from sys_user su
+        inner join sys_user_role sur on su.id = sur.user_id
+        where su.id = #{id}
+    </select>
+
+    <!-- collection集合的嵌套结果映射（collection初始） -->
+    <resultMap id="userRoleListMap6121"  extends="userMap"
+               type="com.example.mysql2es.mybatis.model.SysUser">
+        <collection property="roleList"
+                    columnPrefix="role_"
+                    resultMap="com.example.mysql2es.mybatis.mapper.RoleMapper.roleMap" />
+    </resultMap>
+    <select id="selectUserRoleListMap6121" resultMap="userRoleListMap6121">
+        select
+             su.id,
+             su.user_name,
+             su.user_password,
+             su.user_email,
+             su.user_info,
+             su.head_img,
+             su.create_time,
+             su.update_time,
+             sr.id role_id,
+             sr.role_name role_role_name,
+             sr.enabled role_enabled,
+             sr.create_by role_create_by,
+             sr.create_time role_create_time,
+             sr.update_time role_update_time
+        from sys_user su
+        inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+    </select>
+
+    <!-- 6.1.2.1 collection集合的嵌套结果映射（多张表关联查询，返回一个大结构）-->
+    <resultMap id="userRoleListMap"  extends="userMap"
+               type="com.example.mysql2es.mybatis.model.SysUser">
+        <collection property="roleList"
+                    columnPrefix="role_"
+                    resultMap="com.example.mysql2es.mybatis.mapper.RoleMapper.rolePrivilegeListMap" />
+    </resultMap>
+
+    <select id="selectAllUserAndRoles" resultMap="userRoleListMap">
+        select
+             su.id,
+             su.user_name,
+             su.user_password,
+             su.user_email,
+             su.user_info,
+             su.head_img,
+             su.create_time,
+             su.update_time,
+             sr.id role_id,
+             sr.role_name role_role_name,
+             sr.enabled role_enabled,
+             sr.create_by role_create_by,
+             sr.create_time role_create_time,
+             sr.update_time role_update_time,
+             sp.id role_privilege_id,
+             sp.privilege_name role_privilege_privilege_name,
+             sp.privilege_url role_privilege_privilege_url
+        from sys_user su
+        inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+        inner join sys_role_privilege srp on srp.role_id = sr.id
+        inner join sys_privilege sp on sp.id = srp.privilege_id
+    </select>
+
+    <!-- 6.1.2.2 collection集合的嵌套映射（每次查一张表，其余表根据具体的配置，通过返回的字段分别延迟查询）-->
+    <resultMap id="userRoleListMapSelect" extends="userMap"
+               type="com.example.mysql2es.mybatis.model.SysUser">
+        <collection property="roleList"
+                    fetchType="lazy"
+                    column="{userId=id}"
+                    select="com.example.mysql2es.mybatis.mapper.RoleMapper.selectRoleByUserId" />
+    </resultMap>
+
+    <!-- 6.1.2.2 collection集合的嵌套映射-->
+    <select id="selectAllUserAndRoleSelect" resultMap="userRoleListMapSelect">
+        select
+        su.id,
+        su.user_name,
+        su.user_password,
+        su.user_email,
+        su.user_info,
+        su.head_img,
+        su.create_time,
+        su.update_time
+        from sys_user su
+        where su.id = #{id}
+    </select>
+
+
+    <resultMap id="userRoleList1" extends="userMap" type="com.example.mysql2es.mybatis.model.SysUser">
+        <collection property="roleList" columnPrefix="role_" resultMap="com.example.mysql2es.mybatis.mapper.RoleMapper.roleMap"/>
+    </resultMap>
+
+
+<!--    collection测试-->
+    <select id="selectUserAndRoleByIdCol" resultMap="userRoleList1">
+        select
+         su.id,
+         su.user_name,
+         su.user_password,
+         su.user_email,
+         su.user_info,
+         su.head_img,
+         su.create_time,
+         su.update_time,
+         sr.id role_id,
+         sr.role_name role_role_name,
+         sr.enabled role_enabled,
+         sr.create_by role_create_by,
+         sr.create_time role_create_time,
+         sr.update_time role_update_time
+        from sys_user su
+        inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+        where su.id = #{id}
+    </select>
+
+
+    <resultMap id="userRoleListMap0104" extends="userMap" type="com.example.mysql2es.mybatis.model.SysUser">
+        <collection property="roleList"
+                    fetchType="lazy"
+                    select="com.example.mysql2es.mybatis.mapper.RoleMapper.selectRoleByUserId"
+                    column="{userId=id}"
+                    />
+    </resultMap>
+
+    <select id="selectAllUserAndRole0104" resultMap="userRoleListMap0104">
+        select
+            su.id,
+            su.user_name,
+            su.user_password,
+            su.user_email,
+            su.user_info,
+            su.head_img,
+            su.create_time,
+            su.update_time
+        from sys_user su
+        where su.id = #{id}
+    </select>
+
+    <sql id="userColumn">
+        id,user_name,user_password,user_email,user_info,head_img,create_time,update_time
+    </sql>
+
+    <select id="selectById" parameterType="long" resultMap="userMap">
+        select
+        <include refid="userColumn" />
+        from sys_user
+        where id = #{id}
+    </select>
+
+    <select id="selectAll" resultType="com.example.mysql2es.mybatis.model.SysUser">
+        select
+        <include refid="userColumn" />
+        from sys_user
+    </select>
+
+    <select id="selectRoleByUserId" parameterType="long"
+            resultType="com.example.mysql2es.mybatis.model.SysRole">
+        select
+            sr.id,
+            sr.role_name,
+            sr.enabled,
+            sr.create_by,
+            sr.create_time,
+            sr.update_time
+        from sys_user su inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+        where su.id = #{id}
+    </select>
+
+    <select id="selectRoleByUserIdExtends" parameterType="long"
+            resultType="com.example.mysql2es.mybatis.model.SysRoleExtends">
+        select
+            sr.id,
+            sr.role_name,
+            sr.enabled,
+            sr.create_by,
+            sr.create_time,
+            sr.update_time,
+            su.user_name as 'user.userName',
+            su.user_email as 'user.userEmail'
+        from sys_user su inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+        where su.id = #{id}
+    </select>
+
+    <insert id="insert">
+        insert into sys_user(id,user_name,user_password,user_email,
+        user_info,head_img,create_time,update_time)
+        values(#{id},#{userName},#{userPassword},#{userEmail},#{userInfo},#{headImg,jdbcType=BLOB}
+        ,#{createTime,jdbcType=DATE},#{updateTime,jdbcType=DATE})
+    </insert>
+
+    <!-- 条件插入 -->
+    <insert id="insertBySelective">
+        insert into sys_user(id,user_name,user_password,
+        <if test="userEmail != null and userEmail != ''">user_email,</if>
+        user_info,head_img,create_time,update_time)
+        values(#{id},#{userName},#{userPassword},
+        <if test="userEmail != null and userEmail != ''">#{userEmail},</if>
+        #{userInfo},#{headImg,jdbcType=BLOB}
+        ,#{createTime,jdbcType=DATE},#{updateTime,jdbcType=DATE})
+    </insert>
+
+    <!-- 通过JDBC的方式获取新增返回的主键 -->
+    <insert id="insert2" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_user(user_name,user_password,
+        <if test="sysUser.userEmail != null and sysUser.userEmail != ''">
+            user_email,
+        </if>
+        user_info,head_img,create_time,update_time)
+        values(#{sysUser.userName},#{sysUser.userPassword},
+        <if test="sysUser.userEmail != null and sysUser.userEmail != ''">
+            #{sysUser.userEmail},
+        </if>
+        #{sysUser.userInfo},#{sysUser.headImg,jdbcType=BLOB},#{sysUser.createTime,jdbcType=TIMESTAMP},#{sysUser.updateTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <!-- 通过selectKey获取新增数据返回的主键 -->
+    <insert id="insert3" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_user(user_name,user_password,user_email,user_info,head_img,create_time,update_time)
+        values(#{userName},#{userPassword},#{userEmail},#{userInfo},#{headImg,jdbcType=BLOB}
+        ,#{createTime,jdbcType=TIMESTAMP},#{updateTime,jdbcType=TIMESTAMP})
+        <selectKey keyProperty="id" keyColumn="id" resultType="long" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+
+    </insert>
+
+    <update id="updateById">
+        update sys_user
+        set user_name = #{userName},
+            user_password = #{userPassword},
+            user_email = #{userEmail},
+            user_info = #{userInfo},
+            head_img = #{headImg, jdbcType=BLOB},
+            update_time = #{updateTime, jdbcType=TIMESTAMP}
+        where id = #{id}
+    </update>
+
+    <select id="selectRolesByIdAndEnable" resultType="com.example.mysql2es.mybatis.model.SysRole">
+        select
+         sr.id,
+         sr.role_name,
+         sr.enabled,
+         sr.create_by,
+         sr.create_time,
+         sr.update_time
+        from sys_user su
+        inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+        where su.id = #{userId} and sr.enabled = #{enabled}
+    </select>
+
+    <select id="selectRolesByIdAndEnable2" resultType="com.example.mysql2es.mybatis.model.SysRole">
+        select
+         sr.id,
+         sr.role_name,
+         sr.enabled,
+         sr.create_by,
+         sr.create_time,
+         sr.update_time
+        from sys_user su
+        inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+        where su.id = #{sysUser.id} and sr.enabled = #{sysRole.enabled}
+    </select>
+
+    <select id="selectUsersByIdlist" resultType="com.example.mysql2es.mybatis.model.SysUser">
+        select
+         id,
+         user_name,
+         user_password,
+         user_email,
+         user_info,
+         head_img,
+         create_time,
+         update_time
+        from sys_user
+        where id in
+        <foreach collection="myList" open="(" close=")" separator="," item="id" index="i">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectUsersByIdlist2" resultType="com.example.mysql2es.mybatis.model.SysUser">
+        select
+        id,
+        user_name,
+        user_password,
+        user_email,
+        user_info,
+        head_img,
+        create_time,
+        update_time
+        from sys_user
+        where id in
+        <foreach collection="myArray" open="(" close=")" separator="," item="id" index="i">
+            #{id}
+        </foreach>
+    </select>
+
+    <insert id="insertUserBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_user(user_name, user_password, user_email, user_info, head_img, create_time, update_time)
+        values
+        <foreach collection="list" separator="," item="user">
+            (#{user.userName}, #{user.userPassword}, #{user.userEmail},
+            #{user.userInfo}, #{user.headImg, jdbcType=BLOB},
+            #{user.createTime, jdbcType=TIMESTAMP}, #{user.updateTime, jdbcType=TIMESTAMP})
+        </foreach>
+    </insert>
+
+    <update id="updateByMap">
+        update sys_user
+        set
+        <foreach collection="_parameter" item="val" index="key" separator=",">
+            ${key} = #{val}
+        </foreach>
+        where id = #{id}
+    </update>
+
+    <select id="selectUserByIf1" resultType="com.example.mysql2es.mybatis.model.SysUser">
+        select
+        id,
+        user_name,
+        user_password,
+        user_email,
+        user_info,
+        head_img,
+        create_time,
+        update_time
+        from sys_user
+        where 1 = 1
+        <if test="userName != null and userName != ''">
+            <bind name="userNameLike" value="'%'+userName+'%'"/>
+            and user_name like #{userName}
+        </if>
+        <if test="userEmail != null and userEmail != ''">
+            and user_email = #{userEmail}
+        </if>
+    </select>
+
+    <update id="updateByIdSelective">
+        update sys_user
+        set
+        <if test="userName != null and userName != ''">
+            user_name = #{userName},
+        </if>
+        <if test="userPassword != null and userPassword != ''">
+            user_password = #{userPassword},
+        </if>
+        <if test="userEmail != null and userEmail != ''">
+            user_email = #{userEmail},
+        </if>
+        <if test="userInfo != null and userInfo != ''">
+            user_info = #{userInfo},
+        </if>
+        <if test="headImg != null">
+            head_img = #{headImg, jdbcType=BLOB},
+        </if>
+        <if test="createTime != null">
+            create_time = #{createTime, jdbcType=TIMESTAMP},
+        </if>
+        <if test="updateTime != null">
+            update_time = #{updateTime, jdbcType=TIMESTAMP}
+        </if>
+        id = #{id}
+        where id = #{id}
+    </update>
+
+    <update id="updateBySet">
+        update sys_user
+<!--        <set>-->
+        /* set底层实现是TrimSqlNode */
+        <trim prefix="SET" suffixOverrides=",">
+            <!--<if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>-->
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="userPassword != null and userPassword != ''">
+                user_password = #{userPassword},
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                user_email = #{userEmail},
+            </if>
+            <if test="userInfo != null and userInfo != ''">
+                user_info = #{userInfo},
+            </if>
+            <if test="headImg != null">
+                head_img = #{headImg, jdbcType=BLOB},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime, jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime, jdbcType=TIMESTAMP},
+            </if>
+            id = #{id}
+        </trim>
+<!--        </set>-->
+        where id = #{id}
+    </update>
+
+    <!-- choose when otherwise -->
+    <select id="selectByIdOrUserName" resultType="com.example.mysql2es.mybatis.model.SysUser">
+        select
+            id,
+            user_name,
+            user_password,
+            user_email,
+            user_info,
+            head_img,
+            create_time,
+            update_time
+        from sys_user
+        where 1 = 1
+        <choose>
+            <when test="id != null">
+                and id = #{id}
+            </when>
+            <when test="userName != null and userName != ''">
+                and user_name = #{userName}
+            </when>
+            <otherwise>
+                and 1 = 2
+            </otherwise>
+        </choose>
+
+    </select>
+
+    <select id="selectByUser" resultMap="userMap">
+        select
+        <include refid="userColumn" />
+        from sys_user
+        where 1 = 1
+        <if test="userName != null and userName != ''">
+            and user_name like concat('%', #{userName}, '%')
+        </if>
+        <if test="userEmail != null and userEmail != ''">
+            and user_email = #{userEmail}
+        </if>
+    </select>
+
+    <select id="selectByWhere" resultType="com.example.mysql2es.mybatis.model.SysUser">
+        select <include refid="userColumn" />
+        from sys_user
+        <trim prefix="WHERE" prefixOverrides="AND | OR ">
+            <if test="userName != null and userName != ''">
+                and user_name like concat('%', #{userName}, '%')
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                and user_email = #{userEmail}
+            </if>
+        </trim>
+        /* 两种方式等价，where底层实现是TrimSqlNode */
+        <!--<where>
+            <if test="userName != null and userName != ''">
+                and user_name like concat('%', #{userName}, '%')
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                and user_email = #{userEmail}
+            </if>
+        </where>-->
+    </select>
+
+    <select id="selectByIdOrUserName1" resultType="com.example.mysql2es.mybatis.model.SysUser">
+        select
+            id,
+            user_name,
+            user_password,
+            user_email,
+            user_info,
+            head_img,
+            create_time,
+            update_time
+        from sys_user
+        <where>
+            <if test="userName != null and userName != ''">
+                user_name like concat('%', #{userName}, '%')
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                and user_email = #{userEmail}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="selectUserAndRoleById" resultType="com.example.mysql2es.mybatis.model.SysUser">
+        select
+         su.id,
+         su.user_name,
+         su.user_password,
+         su.user_email,
+         su.user_info,
+         su.head_img,
+         su.create_time,
+         su.update_time,
+         sr.id "role.id",
+         sr.role_name "role.roleName",
+         sr.enabled "role.enabled",
+         sr.create_by "role.createBy",
+         sr.create_time "role.createTime",
+         sr.update_time "role.updateTime"
+        from sys_user su
+        inner join sys_user_role sur on su.id = sur.user_id
+        inner join sys_role sr on sur.role_id = sr.id
+        where su.id = #{id}
+    </select>
+
+    <!-- foreach实现in集合 -->
+    <select id="selectByForeach" resultType="com.example.mysql2es.mybatis.model.SysUser">
+        select <include refid="userColumn"/>
+        from sys_user
+        where id in
+        <foreach collection="idList" open="(" close=")" separator="," item="user" index="i">
+            #{user.id}
+        </foreach>
+    </select>
+
+    <!-- foreach实现批量插入 -->
+    <insert id="insetMulti" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_user(user_name, user_password, user_email, user_info, head_img, create_time, update_time)
+        values
+        <foreach collection="list" item="user" separator=",">
+            (#{user.userName}, #{user.userPassword}, #{user.userEmail},
+            #{user.userInfo}, #{user.headImg, jdbcType=BLOB},
+            #{user.createTime, jdbcType=TIMESTAMP}, #{user.updateTime, jdbcType=TIMESTAMP})
+        </foreach>
+    </insert>
+
+    <!-- foreach实现动态update -->
+    <update id="updateForeach">
+        update sys_user
+        set
+        <foreach collection="mapParam" item="val" index="key" separator=",">
+            ${key} = #{val}
+        </foreach>
+        where id = #{mapParam.id}
+    </update>
+
+
+
+</mapper>

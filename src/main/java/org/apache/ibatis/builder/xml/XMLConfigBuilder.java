@@ -108,9 +108,13 @@ public class XMLConfigBuilder extends BaseBuilder {
       loadCustomLogImpl(settings);
       typeAliasesElement(root.evalNode("typeAliases"));
       pluginElement(root.evalNode("plugins"));
+      // ---------- TODO(此三项配置不经常使用) ----------
       objectFactoryElement(root.evalNode("objectFactory"));
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
+      // ---------- TODO ----------
+
+
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
       environmentsElement(root.evalNode("environments"));
@@ -122,6 +126,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * 解析settings标签(判断setting子标签配置的元素是否符合Configuration里面配置的)
+   * @param context
+   * @return
+   */
   private Properties settingsAsProperties(XNode context) {
     if (context == null) {
       return new Properties();
@@ -137,6 +146,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     return props;
   }
 
+  /**
+   * settings标签（configuration.setVfsImpl()）
+   * @param props
+   * @throws ClassNotFoundException
+   */
   private void loadCustomVfs(Properties props) throws ClassNotFoundException {
     String value = props.getProperty("vfsImpl");
     if (value != null) {
@@ -151,11 +165,19 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * settings标签（configuration.setLogImpl()）
+   * @param props
+   */
   private void loadCustomLogImpl(Properties props) {
     Class<? extends Log> logImpl = resolveClass(props.getProperty("logImpl"));
     configuration.setLogImpl(logImpl);
   }
 
+  /**
+   * typeAlias标签（Configuration的属性typeAliases.put()）
+   * @param parent
+   */
   private void typeAliasesElement(XNode parent) {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
@@ -180,6 +202,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * 解析plugin标签（Configuration的属性interceptorChain加入插件）
+   * @param parent
+   * @throws Exception
+   */
   private void pluginElement(XNode parent) throws Exception {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
@@ -218,28 +245,37 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * 解析properties标签(#configuration.setVariables())
+   * @param context
+   * @throws Exception
+   */
   private void propertiesElement(XNode context) throws Exception {
-    if (context != null) {
-      Properties defaults = context.getChildrenAsProperties();
-      String resource = context.getStringAttribute("resource");
-      String url = context.getStringAttribute("url");
-      if (resource != null && url != null) {
-        throw new BuilderException("The properties element cannot specify both a URL and a resource based property file reference.  Please specify one or the other.");
+      if (context != null) {
+          Properties defaults = context.getChildrenAsProperties();
+          String resource = context.getStringAttribute("resource");
+          String url = context.getStringAttribute("url");
+          if (resource != null && url != null) {
+            throw new BuilderException("The properties element cannot specify both a URL and a resource based property file reference.  Please specify one or the other.");
+          }
+          if (resource != null) {
+            defaults.putAll(Resources.getResourceAsProperties(resource));
+          } else if (url != null) {
+            defaults.putAll(Resources.getUrlAsProperties(url));
+          }
+          Properties vars = configuration.getVariables();
+          if (vars != null) {
+            defaults.putAll(vars);
+          }
+          parser.setVariables(defaults);
+          configuration.setVariables(defaults);
       }
-      if (resource != null) {
-        defaults.putAll(Resources.getResourceAsProperties(resource));
-      } else if (url != null) {
-        defaults.putAll(Resources.getUrlAsProperties(url));
-      }
-      Properties vars = configuration.getVariables();
-      if (vars != null) {
-        defaults.putAll(vars);
-      }
-      parser.setVariables(defaults);
-      configuration.setVariables(defaults);
-    }
   }
 
+  /**
+   * setting标签各项的默认赋值
+   * @param props
+   */
   private void settingsElement(Properties props) {
     configuration.setAutoMappingBehavior(AutoMappingBehavior.valueOf(props.getProperty("autoMappingBehavior", "PARTIAL")));
     configuration.setAutoMappingUnknownColumnBehavior(AutoMappingUnknownColumnBehavior.valueOf(props.getProperty("autoMappingUnknownColumnBehavior", "NONE")));
@@ -269,6 +305,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     configuration.setConfigurationFactory(resolveClass(props.getProperty("configurationFactory")));
   }
 
+  /**
+   * 解析environments标签（configuration.setEnvironment()）
+   * @param context
+   * @throws Exception
+   */
   private void environmentsElement(XNode context) throws Exception {
     if (context != null) {
       if (environment == null) {
@@ -289,6 +330,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * 解析databaseIdProvider标签（configuration.setDatabaseId()）
+   * @param context
+   * @throws Exception
+   */
   private void databaseIdProviderElement(XNode context) throws Exception {
     DatabaseIdProvider databaseIdProvider = null;
     if (context != null) {
@@ -330,6 +376,10 @@ public class XMLConfigBuilder extends BaseBuilder {
     throw new BuilderException("Environment declaration requires a DataSourceFactory.");
   }
 
+  /**
+   * 解析typeHandler标签
+   * @param parent
+   */
   private void typeHandlerElement(XNode parent) {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
@@ -357,6 +407,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   * 解析mappers标签（configuration.addMappers() --> Configuration的mapperRegistry属性赋值）
+   * @param parent
+   * @throws Exception
+   */
   private void mapperElement(XNode parent) throws Exception {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
