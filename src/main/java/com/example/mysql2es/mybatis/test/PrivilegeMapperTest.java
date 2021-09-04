@@ -33,6 +33,22 @@ public class PrivilegeMapperTest extends BaseMapperTest {
         }
     }
 
+  @Test
+  public void testSelectPrivilegeById() {
+    SqlSession sqlSession = getSqlsession();
+    try {
+      PrivilegeMapper mapper = sqlSession.getMapper(PrivilegeMapper.class);
+      SysPrivilege sysPrivilege = mapper.selectPrivilegeById(1L);
+      System.out.println(sysPrivilege);
+      Assert.assertNotNull(sysPrivilege);
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      sqlSession.rollback();
+      sqlSession.close();
+    }
+  }
+
     @Test
     public void testSelectPrivilegeByRoleId() {
         SqlSession sqlSession = getSqlsession();

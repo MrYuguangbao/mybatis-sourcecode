@@ -11,14 +11,31 @@
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP" />
     </resultMap>
 
+    <sql id="privilegeCols">
+      id, privilege_name, privilege_url, create_time, update_time
+    </sql>
+
+    <sql id="tableName">
+      sys_privilege
+    </sql>
+
+    <select id="selectPrivilegeById" resultMap="privilegeMap">
+        <!--select <include refid="privilegeCols" />
+        from <include refid="tableName" />
+        where id = #{id}-->
+      select <include refid="privilegeCols" />
+      from sys_privilege
+      where id = #{id}
+    </select>
+
     <!-- 6.1.2.2 collection集合的嵌套映射-->
     <!-- 根据角色id获取所有的权限信息 -->
-    <select id="selectPrivilegeByRoleId" resultMap="privilegeMap">
+    <!--<select id="selectPrivilegeByRoleId" resultMap="privilegeMap">
         select
         sp.*
         from sys_privilege sp
         inner join sys_role_privilege srp on sp.id = srp.privilege_id
         where srp.role_id = #{roleId}
-    </select>
+    </select>-->
 
 </mapper>

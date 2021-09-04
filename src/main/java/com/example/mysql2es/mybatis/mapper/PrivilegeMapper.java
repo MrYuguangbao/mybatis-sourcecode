@@ -1,6 +1,7 @@
 package com.example.mysql2es.mybatis.mapper;
 
 import com.example.mysql2es.mybatis.model.SysPrivilege;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
 
 import java.util.List;
@@ -18,4 +19,6 @@ public interface PrivilegeMapper {
     SysPrivilege selectById(Long id);
 
     List<SysPrivilege> selectPrivilegeByRoleId(Long roleId);
+
+    SysPrivilege selectPrivilegeById(@Param("id") Long id);
 }

@@ -76,7 +76,8 @@ public class XMLScriptBuilder extends BaseBuilder {
 
   protected MixedSqlNode parseDynamicTags(XNode node) {
     List<SqlNode> contents = new ArrayList<>();
-    NodeList children = node.getNode().getChildNodes();
+    Node tempNode = node.getNode();
+    NodeList children = tempNode.getChildNodes();
     for (int i = 0; i < children.getLength(); i++) {
       XNode child = node.newXNode(children.item(i));
       if (child.getNode().getNodeType() == Node.CDATA_SECTION_NODE || child.getNode().getNodeType() == Node.TEXT_NODE) {
