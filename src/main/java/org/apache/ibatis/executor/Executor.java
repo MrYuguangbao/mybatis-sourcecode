@@ -34,18 +34,62 @@ public interface Executor {
 
   ResultHandler NO_RESULT_HANDLER = null;
 
+  /**
+   * 可以被拦截
+   * @param ms
+   * @param parameter
+   * @return
+   * @throws SQLException
+   */
   int update(MappedStatement ms, Object parameter) throws SQLException;
 
+  /**
+   * 可以被拦截
+   * @param ms
+   * @param parameter
+   * @param rowBounds
+   * @param resultHandler
+   * @param cacheKey
+   * @param boundSql
+   * @param <E>
+   * @return
+   * @throws SQLException
+   */
   <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey cacheKey, BoundSql boundSql) throws SQLException;
 
+  /**
+   * 可以被拦截
+   * @param ms
+   * @param parameter
+   * @param rowBounds
+   * @param resultHandler
+   * @param <E>
+   * @return
+   * @throws SQLException
+   */
   <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException;
 
   <E> Cursor<E> queryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds) throws SQLException;
 
+  /**
+   * 可以被拦截
+   * @return
+   * @throws SQLException
+   */
   List<BatchResult> flushStatements() throws SQLException;
 
+  /**
+   * 可以被拦截
+   * @param required
+   * @throws SQLException
+   */
   void commit(boolean required) throws SQLException;
 
+  /**
+   * 可以被拦截
+   * @param required
+   * @throws SQLException
+   */
   void rollback(boolean required) throws SQLException;
 
   CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql);
@@ -56,10 +100,22 @@ public interface Executor {
 
   void deferLoad(MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType);
 
+  /**
+   * 可以被拦截
+   * @return
+   */
   Transaction getTransaction();
 
+  /**
+   * 可以被拦截
+   * @param forceRollback
+   */
   void close(boolean forceRollback);
 
+  /**
+   * 可以被拦截
+   * @return
+   */
   boolean isClosed();
 
   void setExecutorWrapper(Executor executor);

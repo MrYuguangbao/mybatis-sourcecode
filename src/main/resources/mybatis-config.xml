@@ -20,7 +20,10 @@
                    javaType="com.example.mysql2es.mybatis.model.Enabled" />
     </typeHandlers>
 
-    <!--<plugins>-->
+    <plugins>
+      <plugin interceptor="com.example.mysql2es.mybatis.plugins.PageHelpInterceptor">
+          <property name="dialect" value="com.example.mysql2es.mybatis.plugins.MySQLDialect"/>
+      </plugin>
       <!--<plugin interceptor="com.github.pagehelper.PageInterceptor">
 
       </plugin>-->
@@ -32,7 +35,7 @@
         <property name="plugin1" value="value1"/>
         <property name="plugin2" value="value2"/>
       </plugin>-->
-    <!--</plugins>-->
+    </plugins>
     <environments default="development">
         <environment id="development">
             <transactionManager type="JDBC" />

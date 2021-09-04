@@ -2,6 +2,7 @@ package com.example.mysql2es.mybatis.mapper;
 
 import com.example.mysql2es.mybatis.model.SysRole;
 import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.session.RowBounds;
 
 import java.util.List;
 
@@ -73,4 +74,6 @@ public interface RoleMapper {
     @Update("update sys_role set role_name = #{roleName} where id = #{id}")
     int updateById(SysRole sysRole);
 
+    // -------------------------- 分页插件测试 ------------------------------
+    List<SysRole> selectAll(RowBounds rowBounds);
 }

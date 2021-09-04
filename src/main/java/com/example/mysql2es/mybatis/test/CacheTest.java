@@ -42,12 +42,12 @@ public class CacheTest extends BaseMapperTest {
             UserMapper mapper = sqlSession.getMapper(UserMapper.class);
             SysUser sysUser2 = mapper.selectById(1L);
             System.out.println(sysUser2.getUserName());
-            Assert.assertNotEquals(sysUser1, sysUser2);
+            Assert.assertEquals(sysUser1, sysUser2);
 
             int del = mapper.deleteById(2L);
 
             SysUser sysUser3 = mapper.selectById(1L);
-            Assert.assertEquals(sysUser2, sysUser3);
+            Assert.assertNotEquals(sysUser2, sysUser3);
 
         } finally {
             sqlSession.rollback();
@@ -105,7 +105,7 @@ public class CacheTest extends BaseMapperTest {
             UserMapper mapper = sqlSession.getMapper(UserMapper.class);
             System.out.println("根据用户id查询出用户以及对应的角色：");
             SysUser user = mapper.selectUserAndRoleById(1001L);
-            System.out.println(user);
+            System.out.println("第一次sqlSession查询user:" + user);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -131,7 +131,9 @@ public class CacheTest extends BaseMapperTest {
             RoleMapper roleMapper = sqlSession.getMapper(RoleMapper.class);
             UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
             SysUser user = userMapper.selectUserAndRoleById(1001L);
+            System.out.println("第三次sqlSession查询user:" + user);
             SysRole role = roleMapper.selectById(2L);
+            System.out.println("role:" + role);
 
             role.setRoleName("普通用户");
             roleMapper.updateById(role);

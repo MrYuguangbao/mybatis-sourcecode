@@ -108,12 +108,10 @@ public class XMLConfigBuilder extends BaseBuilder {
       loadCustomLogImpl(settings);
       typeAliasesElement(root.evalNode("typeAliases"));
       pluginElement(root.evalNode("plugins"));
-      // ---------- TODO(此三项配置不经常使用) ----------
+      // ----------(此三项配置,在处理结果集时会用到) ----------
       objectFactoryElement(root.evalNode("objectFactory"));
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
-      // ---------- TODO ----------
-
 
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631

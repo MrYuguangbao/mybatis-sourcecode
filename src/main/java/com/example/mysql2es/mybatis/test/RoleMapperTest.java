@@ -4,6 +4,8 @@ import com.example.mysql2es.mybatis.mapper.RoleMapper;
 import com.example.mysql2es.mybatis.model.Enabled;
 import com.example.mysql2es.mybatis.model.SysPrivilege;
 import com.example.mysql2es.mybatis.model.SysRole;
+import com.github.pagehelper.PageRowBounds;
+import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,11 +42,26 @@ public class RoleMapperTest extends BaseMapperTest {
     public void testSelectAll() {
         SqlSession sqlSession = getSqlsession();
         try {
-            RoleMapper mapper = sqlSession.getMapper(RoleMapper.class);
-            List<SysRole> sysRoles = mapper.selectAll();
-            sysRoles.forEach(v -> {
-                System.out.println(v);
-            });
+          RoleMapper mapper = sqlSession.getMapper(RoleMapper.class);
+          List<SysRole> sysRoles = mapper.selectAll(new RowBounds(0, 1));
+          sysRoles.forEach(v -> {
+              System.out.println(v.getRoleName());
+          });
+          System.out.println("--------------------- 第一次使用PageRowBounds ---------------------");
+          PageRowBounds pageRowBounds = new PageRowBounds(0, 1);
+          sysRoles = mapper.selectAll(pageRowBounds);
+          System.out.println("数据总数：" + pageRowBounds.getTotal());
+          sysRoles.forEach(v -> {
+            System.out.println(v.getRoleName());
+          });
+          System.out.println("--------------------- 第二次使用PageRowBounds ---------------------");
+          pageRowBounds = new PageRowBounds(1, 1);
+          sysRoles = mapper.selectAll(pageRowBounds);
+          System.out.println("数据总数：" + pageRowBounds.getTotal());
+          sysRoles.forEach(v -> {
+            System.out.println(v.getRoleName());
+          });
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
